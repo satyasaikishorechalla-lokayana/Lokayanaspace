@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lokayanaspace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated starfield background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(0, 100, 255, 0.1), rgba(0, 212, 255, 0.1));
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+            animation: fadeInDown 1s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #00d4ff, #0099ff, #00d4ff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .subtitle {
+            color: #8b9dc3;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease 0.3s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 100, 255, 0.1), rgba(0, 212, 255, 0.05));
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            backdrop-filter: blur(20px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.4);
+            border-color: rgba(0, 212, 255, 0.6);
+        }
+
+        .stat-label {
+            color: #8b9dc3;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 2.2em;
+            font-weight: bold;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .map-container {
+            background: linear-gradient(135deg, rgba(0, 100, 255, 0.1), rgba(0, 212, 255, 0.05));
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            margin-bottom: 40px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+            animation: fadeIn 1s ease 0.6s both;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 450px;
+            background: linear-gradient(180deg, rgba(10, 14, 39, 0.8) 0%, rgba(26, 29, 61, 0.8) 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-placeholder::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(0, 153, 255, 0.1) 0%, transparent 50%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .iss-icon {
+            font-size: 5em;
+            animation: float 4s ease-in-out infinite, rotate 20s linear infinite;
+            z-index: 1;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.8));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .coordinates {
+            margin-top: 30px;
+            font-size: 1.4em;
+            color: #00d4ff;
+            z-index: 1;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+            font-weight: 600;
+        }
+
+        .orbit-info {
+            margin-top: 20px;
+            color: #8b9dc3;
+            font-size: 1em;
+            z-index: 1;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .astronauts {
+            background: linear-gradient(135deg, rgba(0, 100, 255, 0.1), rgba(0, 212, 255, 0.05));
+            padding: 35px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+            animation: fadeIn 1s ease 0.9s both;
+        }
+
+        .astronauts h2 {
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        .astronaut-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .astronaut-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #00d4ff;
+            transition: all 0.3s ease;
+            animation: slideInLeft 0.5s ease;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .astronaut-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateX(10px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .astronaut-name {
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .astronaut-craft {
+            color: #8b9dc3;
+            font-size: 0.95em;
+        }
+
+        .loading {
+            text-align: center;
+            color: #8b9dc3;
+            padding: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse-dot 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+        }
+
+        .last-update {
+            text-align: center;
+            color: #8b9dc3;
+            margin-top: 30px;
+            font-size: 0.95em;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 30px;
+            color: #8b9dc3;
+            font-size: 0.95em;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        footer a {
+            color: #00d4ff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .stat-value {
+                font-size: 1.8em;
+            }
+            
+            .map-placeholder {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <header>
+            <h1>🛰️ ISS LIVE TRACKER</h1>
+            <p class="subtitle">
+                <span class="status-indicator"></span>
+                International Space Station - Real-Time Position
+            </p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Latitude</div>
+                <div class="stat-value" id="latitude">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Longitude</div>
+                <div class="stat-value" id="longitude">Loading...</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Altitude</div>
+                <div class="stat-value" id="altitude">~408 km</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Velocity</div>
+                <div class="stat-value" id="velocity">~27,600 km/h</div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div class="map-placeholder">
+                <div class="iss-icon">🛰️</div>
+                <div class="coordinates">
+                    <span id="position-display">Calculating position...</span>
+                </div>
+                <div class="orbit-info">
+                    🌍 The ISS completes one orbit around Earth every 90 minutes
+                </div>
+            </div>
+        </div>
+
+        <div class="astronauts">
+            <h2>👨‍🚀 Humans Currently in Space</h2>
+            <div id="astronaut-list" class="astronaut-list">
+                <div class="loading">Loading astronaut data...</div>
+            </div>
+        </div>
+
+        <div class="last-update">
+            🕐 Last updated: <span id="last-update">Just now</span>
+        </div>
+
+        <footer>
+            <p>🚀 Built by an aspiring space developer | Data from Open Notify API</p>
+            <p style="margin-top: 12px;">
+                <a href="http://open-notify.org/" target="_blank">API Documentation</a> | 
+                Crafted with passion for space exploration ✨
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Create animated starfield
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const numStars = 100;
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.opacity = Math.random() * 0.7 + 0.3;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Track ISS position
+        async function getISSPosition() {
+            try {
+                const response = await fetch('http://api.open-notify.org/iss-now.json');
+                const data = await response.json();
+                
+                const lat = parseFloat(data.iss_position.latitude).toFixed(2);
+                const lon = parseFloat(data.iss_position.longitude).toFixed(2);
+                
+                document.getElementById('latitude').textContent = lat + '°';
+                document.getElementById('longitude').textContent = lon + '°';
+                document.getElementById('position-display').textContent = `${lat}°, ${lon}°`;
+                
+                updateTimestamp();
+            } catch (error) {
+                console.error('Error fetching ISS position:', error);
+                document.getElementById('latitude').textContent = 'Error';
+                document.getElementById('longitude').textContent = 'Error';
+            }
+        }
+
+        // Get astronauts in space
+        async function getAstronauts() {
+            try {
+                const response = await fetch('http://api.open-notify.org/astros.json');
+                const data = await response.json();
+                
+                const astronautList = document.getElementById('astronaut-list');
+                astronautList.innerHTML = '';
+                
+                // Filter for ISS crew
+                const issCrew = data.people.filter(person => person.craft === 'ISS');
+                
+                if (issCrew.length === 0) {
+                    astronautList.innerHTML = '<div class="loading">No crew data available</div>';
+                    return;
+                }
+                
+                issCrew.forEach((person, index) => {
+                    const astronautDiv = document.createElement('div');
+                    astronautDiv.className = 'astronaut-item';
+                    astronautDiv.style.animationDelay = (index * 0.1) + 's';
+                    astronautDiv.innerHTML = `
+                        <div class="astronaut-name">👨‍🚀 ${person.name}</div>
+                        <div class="astronaut-craft">🚀 Currently aboard ${person.craft}</div>
+                    `;
+                    astronautList.appendChild(astronautDiv);
+                });
+                
+            } catch (error) {
+                console.error('Error fetching astronauts:', error);
+                document.getElementById('astronaut-list').innerHTML = 
+                    '<div class="loading">Error loading astronaut data</div>';
+            }
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('last-update').textContent = timeString;
+        }
+
+        // Initialize
+        createStars();
+        getISSPosition();
+        getAstronauts();
+
+        // Update ISS position every 5 seconds
+        setInterval(getISSPosition, 5000);
+
+        // Update astronaut list every 60 seconds
+        setInterval(getAstronauts, 60000);
+    </script>
+</body>
+</html>
