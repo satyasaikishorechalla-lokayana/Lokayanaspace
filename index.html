@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Lokayana Space: live ISS position, Mars rover photos, rocket launches, near-Earth asteroids and NASA's Astronomy Picture of the Day.">
+<title>Lokayana Space - Space Exploration Hub</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #000;
+  color: #fff;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Starfield */
+.stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.star {
+  position: absolute; width: 2px; height: 2px;
+  background: #fff; border-radius: 50%;
+  animation: twinkle 3s infinite;
+}
+@keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+/* Header */
+header {
+  position: relative; z-index: 100;
+  background: linear-gradient(135deg, rgba(0, 20, 40, 0.95), rgba(0, 40, 80, 0.95));
+  backdrop-filter: blur(20px);
+  border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 212, 255, 0.2);
+}
+.header-content {
+  max-width: 1400px; margin: 0 auto; padding: 20px 30px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 20px;
+}
+.logo {
+  font-size: 2em; font-weight: bold;
+  background: linear-gradient(90deg, #00d4ff, #0099ff, #00ff88);
+  background-size: 200% auto;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: shimmer 3s linear infinite;
+  display: flex; align-items: center; gap: 10px;
+}
+@keyframes shimmer { to { background-position: 200% center; } }
+
+/* Navigation */
+nav { display: flex; gap: 10px; flex-wrap: wrap; }
+.nav-tab {
+  padding: 12px 25px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 10px;
+  color: inherit; font: inherit; font-size: 0.95em; font-weight: 500;
+  cursor: pointer; transition: all 0.3s ease;
+  position: relative; overflow: hidden;
+}
+.nav-tab::before {
+  content: ''; position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+.nav-tab:hover::before { left: 100%; }
+.nav-tab:hover {
+  background: rgba(0, 212, 255, 0.2);
+  border-color: rgba(0, 212, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+}
+.nav-tab.active {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 153, 255, 0.3));
+  border-color: #00d4ff;
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+}
+.nav-tab:focus-visible, .retry-btn:focus-visible {
+  outline: 2px solid #00ff88; outline-offset: 3px;
+}
+
+/* Main content */
+.container { max-width: 1400px; margin: 0 auto; padding: 40px 30px; position: relative; z-index: 1; }
+.tab-content { display: none; animation: fadeInUp 0.6s ease; }
+.tab-content.active { display: block; }
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Section headers */
+.section-header {
+  text-align: center; margin-bottom: 40px; padding: 30px;
+  background: linear-gradient(135deg, rgba(0, 100, 255, 0.1), rgba(0, 212, 255, 0.1));
+  border-radius: 20px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 212, 255, 0.2);
+}
+.section-title {
+  font-size: 2.5em; margin-bottom: 10px;
+  background: linear-gradient(90deg, #00d4ff, #00ff88);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.section-subtitle { color: #8b9dc3; font-size: 1.1em; }
+
+/* Cards */
+.card-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px; margin-bottom: 40px;
+}
+.card-3d {
+  background: linear-gradient(135deg, rgba(0, 100, 255, 0.1), rgba(0, 212, 255, 0.05));
+  padding: 30px; border-radius: 20px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  backdrop-filter: blur(20px);
+  transition: all 0.4s ease;
+  position: relative;
+}
+.card-3d:hover {
+  transform: translateY(-10px) scale(1.02);
+  border-color: rgba(0, 212, 255, 0.7);
+  box-shadow: 0 30px 80px rgba(0, 212, 255, 0.4);
+}
+.card-label {
+  color: #8b9dc3; font-size: 0.85em; text-transform: uppercase;
+  letter-spacing: 2px; margin-bottom: 10px; overflow-wrap: anywhere;
+}
+.card-value {
+  font-size: 2em; font-weight: bold;
+  background: linear-gradient(90deg, #00d4ff, #00ff88);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+/* ISS map */
+.iss-map {
+  position: relative; width: 100%; aspect-ratio: 2 / 1;
+  margin-bottom: 40px; border-radius: 20px; overflow: hidden;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  background:
+    linear-gradient(rgba(0, 212, 255, 0.12) 1px, transparent 1px) 0 0 / 100% 16.666%,
+    linear-gradient(90deg, rgba(0, 212, 255, 0.12) 1px, transparent 1px) 0 0 / 8.333% 100%,
+    linear-gradient(135deg, rgba(0, 60, 140, 0.35), rgba(0, 20, 60, 0.5));
+}
+.iss-map::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  border-top: 1px dashed rgba(0, 255, 136, 0.35);
+}
+.iss-dot {
+  position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px;
+  border-radius: 50%; background: #00ff88;
+  box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.25), 0 0 24px rgba(0, 255, 136, 0.9);
+  transition: left 1s linear, top 1s linear;
+  left: 50%; top: 50%; z-index: 2;
+}
+.iss-map-note {
+  position: absolute; left: 14px; bottom: 10px; z-index: 3;
+  font-size: 0.8em; color: #8b9dc3;
+}
+
+/* Image gallery */
+.image-gallery {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px; margin-top: 30px;
+}
+.image-card {
+  position: relative; border-radius: 15px; overflow: hidden;
+  transition: all 0.4s ease;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+.image-card:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 20px 60px rgba(0, 212, 255, 0.4);
+  border-color: rgba(0, 212, 255, 0.6);
+}
+.image-card img { width: 100%; height: 250px; object-fit: cover; display: block; transition: transform 0.4s ease; }
+.image-card:hover img { transform: scale(1.1); }
+.image-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0; padding: 20px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+  transform: translateY(100%); transition: transform 0.4s ease;
+}
+.image-card:hover .image-overlay, .image-card:focus-within .image-overlay { transform: translateY(0); }
+.image-title { font-weight: bold; margin-bottom: 5px; }
+.image-date { font-size: 0.85em; color: #8b9dc3; }
+
+/* Launch and crew cards */
+.launch-card {
+  background: linear-gradient(135deg, rgba(0, 100, 255, 0.1), rgba(0, 212, 255, 0.05));
+  padding: 30px; border-radius: 20px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  margin-bottom: 25px; transition: all 0.4s ease;
+  position: relative; overflow: hidden;
+}
+.launch-card::before {
+  content: ''; position: absolute; left: 0; top: 0; width: 5px; height: 100%;
+  background: linear-gradient(to bottom, #00d4ff, #00ff88);
+}
+.launch-card:hover { transform: translateX(10px); box-shadow: 0 20px 60px rgba(0, 212, 255, 0.3); }
+.launch-header {
+  display: flex; justify-content: space-between; align-items: start;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
+}
+.launch-name { font-size: 1.5em; font-weight: bold; color: #00d4ff; }
+.launch-status {
+  padding: 8px 16px; border-radius: 20px; font-size: 0.85em; font-weight: bold;
+  background: rgba(0, 255, 136, 0.2); border: 1px solid #00ff88; color: #00ff88;
+}
+.countdown {
+  font-size: 2em; text-align: center; padding: 20px;
+  background: rgba(0, 0, 0, 0.3); border-radius: 15px; margin: 20px 0;
+  font-weight: bold; color: #00d4ff;
+}
+.crew-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; margin-top: 20px; }
+.crew-grid .launch-card { margin-bottom: 0; padding: 22px 26px; }
+
+/* Loading and error states */
+.loading { text-align: center; padding: 60px; color: #8b9dc3; grid-column: 1 / -1; }
+.spinner {
+  width: 50px; height: 50px; margin: 0 auto 20px;
+  border: 4px solid rgba(0, 212, 255, 0.2); border-top-color: #00d4ff;
+  border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-box { text-align: center; padding: 50px 20px; color: #8b9dc3; grid-column: 1 / -1; }
+.error-box p { margin-bottom: 18px; line-height: 1.6; }
+.retry-btn {
+  padding: 10px 24px; border-radius: 10px; cursor: pointer;
+  background: rgba(0, 212, 255, 0.15); border: 1px solid #00d4ff;
+  color: #fff; font: inherit; transition: background 0.3s ease;
+}
+.retry-btn:hover { background: rgba(0, 212, 255, 0.3); }
+
+/* APOD */
+.apod-container {
+  background: linear-gradient(135deg, rgba(0, 100, 255, 0.1), rgba(0, 212, 255, 0.05));
+  padding: 40px; border-radius: 20px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  backdrop-filter: blur(20px);
+}
+.apod-image-container {
+  position: relative; border-radius: 15px; overflow: hidden; margin-bottom: 30px;
+  box-shadow: 0 20px 60px rgba(0, 212, 255, 0.3);
+}
+.apod-image { width: 100%; max-height: 600px; object-fit: cover; display: block; }
+.apod-title { font-size: 2em; margin-bottom: 15px; color: #00d4ff; }
+.apod-explanation { line-height: 1.8; color: #c0d0e0; font-size: 1.05em; max-width: 80ch; }
+
+/* Footer */
+footer {
+  text-align: center; padding: 40px 30px; margin-top: 60px;
+  background: linear-gradient(135deg, rgba(0, 20, 40, 0.95), rgba(0, 40, 80, 0.95));
+  border-top: 2px solid rgba(0, 212, 255, 0.3);
+  position: relative; z-index: 10;
+}
+.footer-content { max-width: 1400px; margin: 0 auto; }
+footer a { color: #00d4ff; text-decoration: none; transition: all 0.3s ease; }
+footer a:hover { color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.6); }
+
+.status-live {
+  display: inline-block; width: 10px; height: 10px; margin-right: 8px;
+  background: #00ff88; border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+}
+@keyframes pulse-dot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } }
+
+@media (max-width: 768px) {
+  .header-content { flex-direction: column; text-align: center; }
+  nav { justify-content: center; }
+  .logo { font-size: 1.5em; }
+  .section-title { font-size: 1.8em; }
+  .card-grid { grid-template-columns: 1fr; }
+  .apod-container { padding: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars" aria-hidden="true"></div>
+
+<header>
+  <div class="header-content">
+    <div class="logo"><span>🌌</span><span>LOKAYANA SPACE</span></div>
+    <nav id="nav-tabs" aria-label="Sections">
+      <button class="nav-tab active" data-tab="iss" type="button">🛰️ ISS Tracker</button>
+      <button class="nav-tab" data-tab="mars" type="button">🔴 Mars Rover</button>
+      <button class="nav-tab" data-tab="launches" type="button">🚀 Launches</button>
+      <button class="nav-tab" data-tab="asteroids" type="button">☄️ Asteroids</button>
+      <button class="nav-tab" data-tab="apod" type="button">📸 Picture of the Day</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ISS -->
+  <section id="iss" class="tab-content active">
+    <div class="section-header">
+      <h1 class="section-title">International Space Station</h1>
+      <p class="section-subtitle"><span class="status-live"></span>Live position, updated every 10 seconds</p>
+    </div>
+
+    <div class="iss-map" role="img" aria-label="World map grid showing the current ISS position">
+      <div class="iss-dot" id="iss-dot"></div>
+      <div class="iss-map-note">Grid lines every 30° · dashed line is the equator</div>
+    </div>
+
+    <div class="card-grid">
+      <div class="card-3d"><div class="card-label">Latitude</div><div class="card-value" id="iss-lat">Loading...</div></div>
+      <div class="card-3d"><div class="card-label">Longitude</div><div class="card-value" id="iss-lon">Loading...</div></div>
+      <div class="card-3d"><div class="card-label">Altitude</div><div class="card-value" id="iss-alt">~408 km</div></div>
+      <div class="card-3d"><div class="card-label">Velocity</div><div class="card-value" id="iss-vel">~27,600 km/h</div></div>
+    </div>
+
+    <div class="apod-container">
+      <h2 class="apod-title">👨‍🚀 Astronauts currently in space</h2>
+      <div id="astronauts-list" class="crew-grid">
+        <div class="loading"><div class="spinner"></div><p>Loading crew...</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Mars -->
+  <section id="mars" class="tab-content">
+    <div class="section-header">
+      <h1 class="section-title">Mars Rover Photos</h1>
+      <p class="section-subtitle">Latest images from the Curiosity rover</p>
+    </div>
+    <div id="mars-photos" class="image-gallery">
+      <div class="loading"><div class="spinner"></div><p>Loading Mars photos...</p></div>
+    </div>
+  </section>
+
+  <!-- Launches -->
+  <section id="launches" class="tab-content">
+    <div class="section-header">
+      <h1 class="section-title">Upcoming Rocket Launches</h1>
+      <p class="section-subtitle">The next missions heading to space</p>
+    </div>
+    <div id="launches-list">
+      <div class="loading"><div class="spinner"></div><p>Loading launch schedule...</p></div>
+    </div>
+  </section>
+
+  <!-- Asteroids -->
+  <section id="asteroids" class="tab-content">
+    <div class="section-header">
+      <h1 class="section-title">Near-Earth Asteroids</h1>
+      <p class="section-subtitle">Asteroids making a close approach today</p>
+    </div>
+    <div id="asteroids-list" class="card-grid">
+      <div class="loading"><div class="spinner"></div><p>Loading asteroid data...</p></div>
+    </div>
+  </section>
+
+  <!-- APOD -->
+  <section id="apod" class="tab-content">
+    <div class="section-header">
+      <h1 class="section-title">Astronomy Picture of the Day</h1>
+      <p class="section-subtitle">Today’s view from NASA</p>
+    </div>
+    <div id="apod-content">
+      <div class="loading"><div class="spinner"></div><p>Loading today’s picture...</p></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-content">
+    <p style="font-size: 1.1em; margin-bottom: 15px;">🚀 <strong>Lokayana.space</strong> - Exploring the cosmos through code</p>
+    <p style="color: #8b9dc3; margin-bottom: 10px;">Built with passion by Satya Sai Kishore</p>
+    <p style="font-size: 0.9em; color: #6b7d9c;">
+      Data sources: <a href="https://api.nasa.gov" target="_blank" rel="noopener">NASA Open APIs</a>,
+      <a href="https://wheretheiss.at/w/developer" target="_blank" rel="noopener">Where the ISS at?</a>,
+      <a href="https://thespacedevs.com/llapi" target="_blank" rel="noopener">Launch Library 2</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+// ---------------------------------------------------------------
+// Settings
+// ---------------------------------------------------------------
+// DEMO_KEY works but is heavily rate-limited. Get a free key at
+// https://api.nasa.gov and paste it here.
+const NASA_API_KEY = 'DEMO_KEY';
+
+// ---------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------
+const $ = (id) => document.getElementById(id);
+
+// Escape text from APIs before putting it into HTML.
+function esc(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+// Only allow http(s) URLs in src attributes.
+function safeUrl(url) {
+  try {
+    const u = new URL(url, location.href);
+    return (u.protocol === 'https:' || u.protocol === 'http:') ? esc(u.href) : '';
+  } catch (e) { return ''; }
+}
+
+async function fetchJSON(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+// Short-lived cache so a rate-limited API is not hit on every tab switch.
+function cacheGet(key, maxAgeMs) {
+  try {
+    const raw = sessionStorage.getItem('lk:' + key);
+    if (!raw) return null;
+    const { t, data } = JSON.parse(raw);
+    return (Date.now() - t < maxAgeMs) ? data : null;
+  } catch (e) { return null; }
+}
+function cacheSet(key, data) {
+  try { sessionStorage.setItem('lk:' + key, JSON.stringify({ t: Date.now(), data })); } catch (e) { /* storage unavailable */ }
+}
+
+function showError(targetId, message, retryFn) {
+  const el = $(targetId);
+  el.innerHTML = `
+    <div class="error-box">
+      <p>${esc(message)}</p>
+      <button class="retry-btn" type="button">Try again</button>
+    </div>`;
+  el.querySelector('.retry-btn').addEventListener('click', () => {
+    el.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+    retryFn();
+  });
+}
+
+// ---------------------------------------------------------------
+// Starfield
+// ---------------------------------------------------------------
+function createStars() {
+  const container = $('stars');
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < 150; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.animationDelay = Math.random() * 3 + 's';
+    frag.appendChild(star);
+  }
+  container.appendChild(frag);
+}
+
+// ---------------------------------------------------------------
+// Tabs (each tab loads its data the first time it is opened)
+// ---------------------------------------------------------------
+const loaders = {
+  mars: loadMarsPhotos,
+  launches: loadLaunches,
+  asteroids: loadAsteroids,
+  apod: loadAPOD
+};
+const loaded = {};
+
+document.querySelectorAll('.nav-tab').forEach((tab) => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+    document.querySelectorAll('.nav-tab').forEach((t) => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach((c) => c.classList.remove('active'));
+    tab.classList.add('active');
+    $(target).classList.add('active');
+
+    if (loaders[target] && !loaded[target]) {
+      loaded[target] = true;
+      loaders[target]();
+    }
+  });
+});
+
+// ---------------------------------------------------------------
+// ISS position (HTTPS, works on GitHub Pages)
+// ---------------------------------------------------------------
+async function getISSPosition() {
+  try {
+    const d = await fetchJSON('https://api.wheretheiss.at/v1/satellites/25544');
+    const lat = Number(d.latitude), lon = Number(d.longitude);
+    $('iss-lat').textContent = lat.toFixed(2) + '°';
+    $('iss-lon').textContent = lon.toFixed(2) + '°';
+    if (isFinite(d.altitude)) $('iss-alt').textContent = Math.round(d.altitude).toLocaleString() + ' km';
+    if (isFinite(d.velocity)) $('iss-vel').textContent = Math.round(d.velocity).toLocaleString() + ' km/h';
+
+    const dot = $('iss-dot');
+    dot.style.left = ((lon + 180) / 360 * 100) + '%';
+    dot.style.top = ((90 - lat) / 180 * 100) + '%';
+  } catch (err) {
+    console.error('ISS error:', err);
+    if ($('iss-lat').textContent === 'Loading...') {
+      $('iss-lat').textContent = 'Unavailable';
+      $('iss-lon').textContent = 'Unavailable';
+    }
+  }
+}
+
+// ---------------------------------------------------------------
+// Astronauts in space (HTTPS, via Launch Library 2)
+// ---------------------------------------------------------------
+async function getAstronauts() {
+  const el = $('astronauts-list');
+  try {
+    let data = cacheGet('astronauts', 30 * 60 * 1000);
+    if (!data) {
+      data = await fetchJSON('https://ll.thespacedevs.com/2.2.0/astronaut/?in_space=true&limit=30');
+      cacheSet('astronauts', data);
+    }
+    const people = data.results || [];
+    if (!people.length) {
+      el.innerHTML = '<p style="color:#8b9dc3;">No crew data available right now.</p>';
+      return;
+    }
+    el.innerHTML = people.map((p) => `
+      <div class="launch-card">
+        <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">👨‍🚀 ${esc(p.name)}</div>
+        <div style="color: #8b9dc3;">${esc(p.agency ? p.agency.name : (p.nationality || 'In orbit'))}</div>
+      </div>`).join('');
+  } catch (err) {
+    console.error('Astronauts error:', err);
+    showError('astronauts-list', 'Could not load the crew list. The service may be rate-limited; try again in a few minutes.', getAstronauts);
+  }
+}
+
+// ---------------------------------------------------------------
+// Mars rover photos
+// ---------------------------------------------------------------
+async function loadMarsPhotos() {
+  try {
+    let data = cacheGet('mars', 30 * 60 * 1000);
+    if (!data) {
+      data = await fetchJSON(`https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/latest_photos?api_key=${encodeURIComponent(NASA_API_KEY)}`);
+      cacheSet('mars', data);
+    }
+    const photos = (data.latest_photos || []).slice(0, 12);
+    if (!photos.length) throw new Error('No photos returned');
+
+    $('mars-photos').innerHTML = photos.map((p) => `
+      <div class="image-card">
+        <img src="${safeUrl(p.img_src)}" alt="Curiosity rover photo from the ${esc(p.camera.full_name)}" loading="lazy">
+        <div class="image-overlay">
+          <div class="image-title">${esc(p.camera.full_name)}</div>
+          <div class="image-date">Sol ${esc(p.sol)} · ${esc(p.earth_date)}</div>
+        </div>
+      </div>`).join('');
+  } catch (err) {
+    console.error('Mars error:', err);
+    showError('mars-photos', 'Could not load Mars photos. NASA’s demo key is rate-limited; adding your own key in the settings at the top of the script fixes this.', loadMarsPhotos);
+  }
+}
+
+// ---------------------------------------------------------------
+// Upcoming launches
+// ---------------------------------------------------------------
+async function loadLaunches() {
+  try {
+    let data = cacheGet('launches', 15 * 60 * 1000);
+    if (!data) {
+      data = await fetchJSON('https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=5');
+      cacheSet('launches', data);
+    }
+    const results = data.results || [];
+    if (!results.length) throw new Error('No launches returned');
+
+    const now = new Date();
+    $('launches-list').innerHTML = results.map((launch) => {
+      const diff = new Date(launch.net) - now;
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const desc = launch.mission && launch.mission.description
+        ? launch.mission.description.substring(0, 180) + (launch.mission.description.length > 180 ? '...' : '')
+        : 'Mission details pending';
+      const provider = launch.launch_service_provider ? launch.launch_service_provider.name : 'Unknown provider';
+      const place = launch.pad && launch.pad.location ? launch.pad.location.name : 'Unknown location';
+
+      return `
+        <div class="launch-card">
+          <div class="launch-header">
+            <div class="launch-name">${esc(launch.name)}</div>
+            <div class="launch-status">${esc(launch.status ? launch.status.name : 'TBD')}</div>
+          </div>
+          <div style="color: #8b9dc3; margin-bottom: 10px;">🚀 ${esc(provider)}</div>
+          <div style="color: #8b9dc3; margin-bottom: 15px;">📍 ${esc(place)}</div>
+          ${diff > 0 ? `<div class="countdown">T-${days}d ${hours}h</div>` : ''}
+          <div style="color: #c0d0e0; font-size: 0.95em;">${esc(desc)}</div>
+        </div>`;
+    }).join('');
+  } catch (err) {
+    console.error('Launches error:', err);
+    showError('launches-list', 'Could not load the launch schedule. This service allows only a few requests per hour; try again later.', loadLaunches);
+  }
+}
+
+// ---------------------------------------------------------------
+// Near-Earth asteroids
+// ---------------------------------------------------------------
+async function loadAsteroids() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    let data = cacheGet('asteroids-' + today, 60 * 60 * 1000);
+    if (!data) {
+      data = await fetchJSON(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${today}&end_date=${today}&api_key=${encodeURIComponent(NASA_API_KEY)}`);
+      cacheSet('asteroids-' + today, data);
+    }
+    const asteroids = Object.values(data.near_earth_objects || {}).flat().slice(0, 9);
+    if (!asteroids.length) {
+      $('asteroids-list').innerHTML = '<p style="color:#8b9dc3; grid-column:1/-1; text-align:center;">No close approaches listed for today.</p>';
+      return;
+    }
+
+    $('asteroids-list').innerHTML = asteroids.map((a) => {
+      const approach = a.close_approach_data && a.close_approach_data[0];
+      const diameter = Math.round(a.estimated_diameter.meters.estimated_diameter_max);
+      const miss = approach ? Math.round(Number(approach.miss_distance.kilometers)).toLocaleString() + ' km' : 'n/a';
+      const speed = approach ? Math.round(Number(approach.relative_velocity.kilometers_per_hour)).toLocaleString() + ' km/h' : 'n/a';
+      return `
+        <div class="card-3d">
+          <div class="card-label">${esc(a.name)}</div>
+          <div style="margin: 15px 0; color: #8b9dc3; font-size: 0.9em; line-height: 1.8;">
+            <div>Diameter: up to ${diameter.toLocaleString()} m</div>
+            <div>Miss distance: ${miss}</div>
+            <div>Velocity: ${speed}</div>
+          </div>
+          ${a.is_potentially_hazardous_asteroid
+            ? '<div style="color: #ff6b6b; font-weight: bold;">⚠️ Potentially hazardous</div>'
+            : '<div style="color: #00ff88;">✓ Safe passage</div>'}
+        </div>`;
+    }).join('');
+  } catch (err) {
+    console.error('Asteroids error:', err);
+    showError('asteroids-list', 'Could not load asteroid data. NASA’s demo key is rate-limited; adding your own key in the settings at the top of the script fixes this.', loadAsteroids);
+  }
+}
+
+// ---------------------------------------------------------------
+// Astronomy Picture of the Day
+// ---------------------------------------------------------------
+async function loadAPOD() {
+  try {
+    let data = cacheGet('apod', 60 * 60 * 1000);
+    if (!data) {
+      data = await fetchJSON(`https://api.nasa.gov/planetary/apod?api_key=${encodeURIComponent(NASA_API_KEY)}`);
+      cacheSet('apod', data);
+    }
+    const media = data.media_type === 'image'
+      ? `<img src="${safeUrl(data.url)}" alt="${esc(data.title)}" class="apod-image">`
+      : `<iframe src="${safeUrl(data.url)}" title="${esc(data.title)}" width="100%" height="500" style="border:0;display:block;" allowfullscreen></iframe>`;
+
+    $('apod-content').innerHTML = `
+      <div class="apod-container">
+        <div class="apod-image-container">${media}</div>
+        <h2 class="apod-title">${esc(data.title)}</h2>
+        <div style="color: #8b9dc3; margin-bottom: 20px; font-size: 0.95em;">
+          📅 ${esc(data.date)}${data.copyright ? ' | 📸 ' + esc(data.copyright.trim()) : ''}
+        </div>
+        <p class="apod-explanation">${esc(data.explanation)}</p>
+      </div>`;
+  } catch (err) {
+    console.error('APOD error:', err);
+    showError('apod-content', 'Could not load today’s picture. NASA’s demo key is rate-limited; adding your own key in the settings at the top of the script fixes this.', loadAPOD);
+  }
+}
+
+// ---------------------------------------------------------------
+// Start
+// ---------------------------------------------------------------
+createStars();
+getISSPosition();
+getAstronauts();
+
+// Poll the ISS only while the page is visible.
+let issTimer = setInterval(getISSPosition, 10000);
+document.addEventListener('visibilitychange', () => {
+  clearInterval(issTimer);
+  if (!document.hidden) {
+    getISSPosition();
+    issTimer = setInterval(getISSPosition, 10000);
+  }
+});
+</script>
+</body>
+</html>
